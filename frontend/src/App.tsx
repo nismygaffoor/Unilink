@@ -1,52 +1,114 @@
-import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import DashboardLayout from "./layouts/DashboardLayout";
+import PublicLayout from "./layouts/PublicLayout";
+import './styles/theme.ts';
+
+
+import Dashboard from "./pages/Dashboard";
+import AcademicRepository from "./pages/AcademicRepository";
+import EventHub from "./pages/EventHub";
+import CommunityForum from "./pages/CommunityForum";
+import Leaderboard from "./pages/Leaderboard";
+import Profile from "./pages/Profile";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
 import SignIn from "./components/SignIn";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Dashboard from "./components/Dashboard";
-import AcademicRepository from "./components/AcademicRepository";
-import EventHub from "./components/EventHub";
-import CommunityForum from "./components/CommunityForum";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
-  const [userEmail, setUserEmail] = useState<string | null>(
-    () => localStorage.getItem("userEmail")
-  );
-
-  function handleSignIn(email: string) {
-    setUserEmail(email);
-    localStorage.setItem("userEmail", email);
-  }
-
-  function handleSignOut() {
-    setUserEmail(null);
-    localStorage.removeItem("userEmail");
-  }
-
-  if (!userEmail) {
-    return <SignIn onSignIn={handleSignIn} />;
-  }
-
   return (
-    <Router>
-      <Navbar />
-      <div className="max-w-3xl mx-auto p-4 min-h-screen">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/repository" element={<AcademicRepository />} />
-          <Route path="/events" element={<EventHub />} />
-          <Route path="/forum" element={<CommunityForum />} />
-        </Routes>
-        <button
-          onClick={handleSignOut}
-          className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-        >
-          Sign Out
-        </button>
-      </div>
-      <footer className="text-center text-gray-500 py-4">
-        © 2024 UniLink. All rights reserved.
-      </footer>
-    </Router>
+    <>
+      <Routes>
+        {/* Public routes */}
+        <Route
+  path="*"
+  element={
+    <PublicLayout>
+      <NotFound />
+    </PublicLayout>
+  }
+/>
+      <Route
+        path="/"
+        element={
+          <PublicLayout>
+            <Home />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/faq"
+        element={
+          <PublicLayout>
+            <FAQ />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/contact"
+        element={
+          <PublicLayout>
+            <Contact />
+          </PublicLayout>
+        }
+      />
+      <Route path="/login" element={<SignIn />} />
+
+
+        {/* Protected dashboard routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><Dashboard /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/repository"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><AcademicRepository /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/events"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><EventHub /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forum"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><CommunityForum /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><Leaderboard /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><Profile /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 
