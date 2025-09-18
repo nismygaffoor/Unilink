@@ -7,7 +7,6 @@ import {
 } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import theme from "../styles/theme";
-import AboutImage from "../assets/mmmmm.jpg";
 
 
 export default function Home() {
