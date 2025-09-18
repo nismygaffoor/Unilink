@@ -39,24 +39,30 @@ export default function PublicNavbar() {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex gap-8">
-        {navLinks.map(link => (
-          <Link
-            key={link.to}
-            to={link.to}
-            className={`text-xl font-medium relative px-2 py-1 transition-all duration-300
-              ${location.pathname === link.to ? "after:absolute after:-bottom-1 after:left-0 after:w-full after:h-1 after:rounded-full after:bg-teal-600" : ""}
-              hover:text-teal-600 hover:scale-105`}
-            style={{
-              color:
-                location.pathname === link.to
+          <div className="flex gap-8">
+        {navLinks.map(link => {
+          const isActive = location.pathname === link.to;
+          return (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`text-xl font-medium relative px-2 py-1 transition-all duration-300 hover:scale-105`}
+              style={{
+                color: isActive
                   ? theme.colors.secondary
-                  : theme.colors.textPrimary
-            }}
-          >
-            {link.label}
-          </Link>
-        ))}
+                  : theme.colors.textPrimary,
+              }}
+            >
+              {link.label}
+              {isActive && (
+                <span
+                  className="absolute -bottom-1 left-0 w-full h-1 rounded-full"
+                  style={{ backgroundColor: theme.colors.secondary }}
+                ></span>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
