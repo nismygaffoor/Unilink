@@ -15,6 +15,8 @@ const theme = {
 
   gradients: {
     primary: "linear-gradient(to right, #53ad80ff, #f4e9c6ff)",
+
+    secondary: "linear-gradient(to right, #53ad80ff, #f4e9c6ff)",
     navbar: "linear-gradient(to bottom, #4CA69B, #3C9084)",
   },
 
