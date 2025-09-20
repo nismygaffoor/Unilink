@@ -12,8 +12,12 @@ const navLinks = [
 export default function PublicNavbar() {
   const location = useLocation();
   return (
+    <div
+    className="w-full sticky top-0 z-40">
+
+ 
     <nav
-      className="flex justify-between items-center px-14 py-4 shadow-md"
+      className="flex justify-between items-center px-14 py-1 shadow-md"
       style={{ backgroundColor: theme.colors.white }}
     >
       {/* Logo / Web Name */}
@@ -46,7 +50,7 @@ export default function PublicNavbar() {
             <Link
               key={link.to}
               to={link.to}
-              className={`text-xl font-medium relative px-2 py-1 transition-all duration-300 hover:scale-105`}
+              className={`text-xl font-bold relative px-2 py-1 transition-all duration-300 hover:scale-105`}
               style={{
                 color: isActive
                   ? theme.colors.secondary
@@ -65,5 +69,6 @@ export default function PublicNavbar() {
         })}
       </div>
     </nav>
+       </div>
   );
 }
