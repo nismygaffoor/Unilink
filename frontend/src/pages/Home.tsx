@@ -7,32 +7,74 @@ import {
 } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import theme from "../styles/theme";
+import img from "./../assets/3.jpg"
+import img2 from "./../assets/7.jpg"
 
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
 
 export default function Home() {
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-[theme.colors.bgLeft]">
-      {/* Hero Section */}
+    <div >
+      {/* ===== Nav ===== */}
+      {/* <header
+        className="w-full sticky top-0 z-40"
+        style={{ background: theme.gradients.navbar }}
+      >
+       <nav className="max-w-8xl mx-auto px-10 py-1 flex items-center justify-between">
+  {/* Logo */}
+  {/* <a href="/" className="flex flex-col items-start ml-7">
+    <div className="flex items-center gap-1">
+      <AcademicCapIcon className="w-16 h-10 text-white" />
+      <span className="text-4xl font-extrabold text-white">UniLink</span>
+    </div>
+    <span className="text-xl text-gray-200 ml-6">Connect. Share. Learn.</span>
+  </a> */}
+
+  {/* Desktop nav */}
+  {/* <ul className="hidden md:flex items-center gap-8">
+    {["Home", "Features", "About", "Login"].map((item) => (
+      <li key={item}>
+        <a
+          href={item === "Login" ? "/login" : `#${item.toLowerCase()}`}
+          className=" text-lg font-bold text-white hover:text-gray-200 transition"
+        >
+          {item}
+        </a>
+      </li>
+    ))}
+  </ul> */}
+
+  {/* Mobile button */}
+  {/* <a
+    href="/login"
+    className="md:hidden px-4 py-2 rounded-lg font-semibold bg-white text-teal-600"
+  >
+    Login
+  </a>
+</nav>
+
+      </header> */}
+
+      {/* ===== Hero ===== */}
       <motion.section
+        id="home"
         initial="hidden"
         animate="visible"
         variants={fadeInUp}
-        className={`flex flex-col items-center justify-center text-center py-32 px-4 w-full`}
+        className="flex flex-col items-center text-center py-28 px-6"
         style={{ background: theme.gradients.primary }}
       >
         <h1
-          className="text-5xl font-extrabold mb-4"
+          className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight"
           style={{ color: theme.colors.titleColor }}
         >
           Welcome to UniLink
         </h1>
         <p
-          className="text-lg mb-8 max-w-xl"
+          className="text-lg md:text-xl mb-8 max-w-2xl"
           style={{ color: theme.colors.textPrimary }}
         >
           The central hub for Sri Lankan university students to share knowledge,
@@ -40,24 +82,22 @@ export default function Home() {
         </p>
         <a
           href="/login"
-          className="px-8 py-3 rounded-lg shadow-lg text-lg font-semibold transition"
-          style={{
-            backgroundColor: theme.colors.primary,
-            color: theme.colors.white,
-          }}
+          className="px-8 py-3 rounded-lg shadow-lg text-lg font-semibold transition hover:opacity-90"
+          style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
         >
           Get Started
         </a>
       </motion.section>
 
-      {/* Features / Why Choose Us */}
-      <section className="py-20 px-6 w-full max-w-6xl">
+      {/* ===== Features ===== */}
+      <section id="features" className="py-10 px-6 w-full max-w-7xl mx-auto">
         <h2
-          className="text-3xl font-bold text-center mb-12"
+          className="text-3xl md:text-4xl font-bold text-center mb-12"
           style={{ color: theme.colors.titleColor }}
         >
           Why Choose UniLink?
         </h2>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {[
             {
@@ -78,93 +118,220 @@ export default function Home() {
             {
               icon: CpuChipIcon,
               title: "AI-Powered Tools",
-              desc: "Sentiment analysis, tag suggestions, and gamified badges for engagement.",
+              desc: "Sentiment analysis, tag suggestions, and gamified badges.",
             },
-          ].map((feature, index) => (
+          ].map((f, i) => (
             <motion.div
-              key={index}
+              key={i}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.25 }}
               variants={fadeInUp}
-              className="shadow-lg rounded-xl p-8 flex flex-col items-center hover:scale-105 transform transition"
+              className="rounded-xl p-8 flex flex-col items-center shadow-lg hover:scale-105 transition mb-[0px]"
               style={{ backgroundColor: theme.colors.white }}
             >
-              <feature.icon
-                className="w-16 h-16 mb-4"
-                style={{ color: theme.colors.secondary }}
-              />
-              <h3
-                className="font-semibold text-xl mb-2"
-                style={{ color: theme.colors.textPrimary }}
-              >
-                {feature.title}
+              <f.icon className="w-16 h-16 mb-4" style={{ color: theme.colors.secondary }} />
+              <h3 className="font-semibold text-xl mb-2" style={{ color: theme.colors.textPrimary }}>
+                {f.title}
               </h3>
-              <p
-                className="text-sm text-center"
-                style={{ color: theme.colors.textSecondary }}
-              >
-                {feature.desc}
+              <p className="text-sm text-center" style={{ color: theme.colors.textSecondary }}>
+                {f.desc}
               </p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* About Us Section */}
+      {/* ===== About (layout A: images left, text right) ===== */}
+      <motion.section
+        id="about"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className="w-full max-w-7xl mx-auto px-6 md:px-10 py-20 grid md:grid-cols-2 gap-10 items-center mb-24"
+      >
+     
+       
+<div className="relative w-full h-full">
+  {/* First image */}
+  <div className="w-4/6 aspect-[4/4] overflow-hidden rounded-lg shadow-lg">
+    <img src={img2} alt="Students" className="w-full h-full object-cover" />
+  </div>
+
+{/* Background box (shifted lower & left) */}
+
+<div className="absolute inset-0 flex  items-center justify-center -z-10 translate-y-20 -translate-x-[10px]">
+  <div
+    className="w-4/6 h-full rounded-lg"
+    style={{ backgroundColor: theme.colors.secondary }}
+  />
+</div>
+
+  {/* Second image (shifted further down) */}
+  <div className="w-4/6 aspect-[4/4] overflow-hidden rounded-lg shadow-lg absolute -bottom-40 right-5 hidden md:block">
+    <img src={img} alt="Library" className="w-full h-full object-cover" />
+  </div>
+</div>
+
+
+
+        {/* text (right) */}
+        <div className="mt-[160px]">
+          <div className="h-[3px] w-[135px] mb-6" style={{ backgroundColor: theme.colors.primary }} />
+          <h2
+            className="text-4xl md:text-5xl font-extrabold leading-tight mb-6"
+            style={{ color: theme.colors.textPrimary }}
+          >
+            We are preparing the
+            <br /> leaders of tomorrow
+          </h2>
+          <p className="text-lg leading-8 mb-8" style={{ color: theme.colors.textSecondary }}>
+            UniLink empowers Sri Lankan university students with a centralized space for learning,
+            sharing, and connecting across campuses.
+          </p>
+          <a
+            href="/login"
+            className="inline-block px-8 py-3 rounded-lg font-semibold shadow-lg transition hover:opacity-90"
+            style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
+          >
+            Join Now
+          </a>
+        </div>
+      </motion.section>
+
+      {/* ===== About (layout B: text left, image + quote card right) ===== */}
+      {/* <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className="w-full max-w-7xl mx-auto px-6 md:px-10 py-20 grid md:grid-cols-2 gap-10 items-center"
+      >
+   
+        <div>
+          <div className="h-[3px] w-16 mb-6" style={{ backgroundColor: theme.colors.highlight }} />
+          <h3
+            className="text-4xl md:text-5xl font-extrabold mb-6"
+            style={{ color: theme.colors.textPrimary }}
+          >
+            Our vision and mission
+          </h3>
+          <p className="text-lg leading-8 mb-8" style={{ color: theme.colors.textSecondary }}>
+            We’re building a student-first community where knowledge is accessible, collaboration is
+            seamless, and personal growth is encouraged.
+          </p>
+          <a
+            href="/login"
+            className="inline-block px-8 py-3 rounded-lg font-semibold shadow-lg transition hover:opacity-90"
+            style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
+          >
+            Enroll Now
+          </a>
+        </div>
+
+      
+        <div className="relative">
+          <img
+            src="./../assets/3.jpg"
+            alt="Mentor"
+            className="w-full rounded-lg shadow-lg object-cover"
+          />
+          <div
+            className="absolute left-6 -bottom-10 bg-white rounded-xl shadow-xl p-6 max-w-md"
+            style={{ border: "1px solid rgba(0,0,0,0.06)" }}
+          >
+            <div className="h-[3px] w-12 mb-4" style={{ backgroundColor: theme.colors.highlight }} />
+            <p className="text-lg mb-4" style={{ color: theme.colors.textPrimary }}>
+              “UniLink helped me find resources and communities I didn’t know existed.”
+            </p>
+            <div className="text-sm font-semibold" style={{ color: theme.colors.textPrimary }}>
+              JOHN CARTER
+            </div>
+            <div className="text-sm" style={{ color: theme.colors.textSecondary }}>
+              PRESIDENT OF CLASSROOM
+            </div>
+          </div>
+        </div>
+      </motion.section> */}
+
+      {/* ===== CTA ===== */}
+      {/* <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className="w-full py-16 text-center mt-24"
+        style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
+      >
+        <h2 className="text-3xl font-bold mb-4">Join UniLink Today!</h2>
+        <p className="mb-6">Start connecting, sharing, and learning across universities.</p>
+        <a
+          href="/login"
+          className="px-6 py-3 rounded-lg font-semibold transition hover:opacity-90"
+          style={{ backgroundColor: theme.colors.white, color: theme.colors.primary }}
+        >
+          Get Started
+        </a>
+      </motion.section> */}
+
+
+{/* ===== CTA (green/teal style, matches theme) ===== */}
 <motion.section
   initial="hidden"
   whileInView="visible"
   viewport={{ once: true, amount: 0.3 }}
   variants={fadeInUp}
-  className="py-12 px-8 w-full flex flex-col items-center"
-  style={{ backgroundColor: theme.colors.bgRight }}
+  className="w-full mt-[150px]"
 >
-  <h2
-    className="text-4xl md:text-6xl font-extrabold text-center mb-6"
-    style={{ color: theme.colors.titleColor }}
+  <div
+    className=" mx-auto px-6 md:px-10 py-20 md:py-24"
+    style={{
+      backgroundColor: theme.colors.primary, // teal-green from your theme
+      color: theme.colors.white,
+      borderRadius: "0.25rem",
+    }}
   >
-    About UniLink
-  </h2>
+    <div className="grid md:grid-cols-3 gap-10 items-center ml-[150px]">
+      {/* Left: line + heading + text */}
+      <div className="md:col-span-2">
+        <div
+          className="h-[2px] w-28 mb-5"
+          style={{ backgroundColor: theme.colors.white, opacity: 0.9 }}
+        />
+        <h2
+          className="text-4xl md:text-5xl font-extrabold mb-5 leading-tight"
+          style={{ color: theme.colors.white }}
+        >
+          Join UniLink Today!
+        </h2>
+        <p
+          className="text-base md:text-lg max-w-3xl"
+          style={{ color: "rgba(255,255,255,0.9)" }}
+        >
+          Start connecting, sharing, and learning across universities.
+        </p>
+      </div>
 
-  <div className=" text-center flex flex-col gap-4">
-    <p className="text-xl md:text-2xl leading-relaxed   font-semibold" style={{ color: theme.colors.textPrimary }}>
-      UniLink is designed to empower Sri Lankan university students by providing a centralized platform for learning, sharing, and connecting.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed   font-semibold " style={{ color: theme.colors.textPrimary }}>
-      Our mission is to create a student-first digital community where knowledge is accessible, collaboration is seamless, and personal growth is encouraged. Whether you need past papers, want to join a Kuppi session, or stay updated on campus events, UniLink is your one-stop hub. Join us and help shape the future of student life!
-    </p>
-    <a
-      href="/login"
-      className="mt-4 px-8 py-4 rounded-lg font-semibold transition shadow-lg text-xl md:text-2xl w-max mx-auto"
-      style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
-    >
-      Join Now
-    </a>
+      {/* Right: CTA button */}
+      <div className="flex md:justify-end items-center mr-[150px]">
+        <a
+          href="/login"
+          className="px-10 py-6 text-sm tracking-wide font-semibold uppercase rounded-md shadow-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2"
+          style={{
+            backgroundColor: theme.colors.highlight, // dusty rose button
+            color: theme.colors.white,
+            boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
+          }}
+        >
+          Enroll Now
+        </a>
+      </div>
+    </div>
   </div>
 </motion.section>
 
-      {/* Call to Action */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={fadeInUp}
-        className="w-full mb-6 py-16  text-center rounded-b-lg"
-        style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
-      >
-        <h2 className="text-3xl font-bold mb-4">Join UniLink Today!</h2>
-        <p className="mb-6">
-          Start connecting, sharing, and learning across universities.
-        </p>
-        <a
-          href="/login"
-          className="px-6 py-3  rounded-lg font-semibold transition"
-          style={{ backgroundColor: theme.colors.white, color: theme.colors.primary }}
-        >
-          Get Started
-        </a>
-      </motion.section>
+      
     </div>
   );
 }
