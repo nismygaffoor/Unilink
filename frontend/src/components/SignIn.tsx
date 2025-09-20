@@ -38,7 +38,7 @@ export default function SignIn() {
   return (
     <div
       className="flex flex-col items-center justify-center min-h-screen px-4"
-      style={{ background: theme.gradients.primary }}
+      style={{ background: theme.gradients.secondary }}
     >
       <form
         onSubmit={handleSubmit}
