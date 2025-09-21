@@ -6,12 +6,15 @@ import './styles/theme.ts';
 
 import Dashboard from "./pages/Dashboard";
 import AcademicRepository from "./pages/AcademicRepository";
+import NotesBySubject from "./pages/NotesBySubject";
+
 import EventHub from "./pages/EventHub";
 import CommunityForum from "./pages/CommunityForum";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+
 
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
@@ -75,6 +78,15 @@ function App() {
             </PrivateRoute>
           }
         />
+         <Route
+          path="/notes/:subject"
+          element={
+            <PrivateRoute>
+              <DashboardLayout><NotesBySubject /></DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        
         <Route
           path="/events"
           element={
