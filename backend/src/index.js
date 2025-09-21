@@ -6,7 +6,9 @@ const mongoose = require('mongoose');
 
 // Routes
 
+const subjectRoutes = require('../routes/subjectRoutes');
 const noteRoutes = require('../routes/noteRoutes');
+
 const eventRoutes = require('../routes/eventRoutes');
 const forumRoutes = require('../routes/forumRoutes');
 const userRoutes = require('../routes/userRoutes');
@@ -35,7 +37,8 @@ mongoose.connect(process.env.MONGO_URI, {
 // Use routes
 app.use('/api/auth', authRoutes);      // Signup
 app.use('/api/users', userRoutes);     // Leaderboard & profiles
-app.use('/api/notes', noteRoutes);     // Notes CRUD
+app.use('/api/subjects', subjectRoutes);
+app.use('/api/notes', noteRoutes);
 app.use('/api/events', eventRoutes);   // Events CRUD
 app.use('/api/forum', forumRoutes);    // Forum CRUD
 
