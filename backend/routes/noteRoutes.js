@@ -1,23 +1,16 @@
-// routes/noteRoutes.js
 const express = require('express');
 const router = express.Router();
-const {
-  getNotes,
-  createNote,
-  getSubjects,
-  getNotesBySubject
-} = require('../controllers/noteController');
+const multer = require('multer');
+const { getNotesBySubject, createNote } = require('../controllers/noteController');
 
-// Get all notes
-router.get('/', getNotes);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
 
-// Create a new note
-router.post('/', createNote);
+const upload = multer({ storage });
 
-// Get all subjects
-router.get('/subjects', getSubjects);
-
-// Get notes by subject
-router.get('/:subject', getNotesBySubject);
+router.get('/subject/:subject', getNotesBySubject);
+router.post('/', upload.single('file'), createNote);
 
 module.exports = router;
