@@ -9,19 +9,19 @@ export default function Contact() {
 
   return (
     <motion.div
-      className="max-w-2xl mx-auto py-16 px-4"
+      className="max-w-xl mx-auto py-16 px-4"
       initial="hidden"
       animate="visible"
       variants={fadeInUp}
     >
       <h1
-        className="text-4xl md:text-5xl font-extrabold mb-6 text-center"
+        className="text-3xl md:text-5xl font-extrabold mb-4 text-center"
         style={{ color: theme.colors.titleColor }}
       >
         Contact & Feedback
       </h1>
       <p
-        className="text-lg md:text-xl text-center mb-8"
+        className="text-lg md:text-lg text-center mb-4"
         style={{ color: theme.colors.textPrimary }}
       >
         Have questions, feedback, or want to get in touch? Fill out the form below or email us at{" "}
@@ -35,7 +35,7 @@ export default function Contact() {
       </p>
 
       <motion.form
-        className="bg-white p-8 rounded-2xl shadow-lg flex flex-col gap-4"
+        className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col gap-4"
         whileHover={{ scale: 1.01 }}
         transition={{ type: "spring", stiffness: 100 }}
       >
