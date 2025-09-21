@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import theme from "../styles/theme";
 import img from "./../assets/3.jpg"
 import img2 from "./../assets/7.jpg"
-
+import img3 from "./../assets/8.jpg"
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
@@ -18,48 +18,9 @@ const fadeInUp = {
 export default function Home() {
   return (
     <div >
-      {/* ===== Nav ===== */}
-      {/* <header
-        className="w-full sticky top-0 z-40"
-        style={{ background: theme.gradients.navbar }}
-      >
-       <nav className="max-w-8xl mx-auto px-10 py-1 flex items-center justify-between">
-  {/* Logo */}
-  {/* <a href="/" className="flex flex-col items-start ml-7">
-    <div className="flex items-center gap-1">
-      <AcademicCapIcon className="w-16 h-10 text-white" />
-      <span className="text-4xl font-extrabold text-white">UniLink</span>
-    </div>
-    <span className="text-xl text-gray-200 ml-6">Connect. Share. Learn.</span>
-  </a> */}
-
-  {/* Desktop nav */}
-  {/* <ul className="hidden md:flex items-center gap-8">
-    {["Home", "Features", "About", "Login"].map((item) => (
-      <li key={item}>
-        <a
-          href={item === "Login" ? "/login" : `#${item.toLowerCase()}`}
-          className=" text-lg font-bold text-white hover:text-gray-200 transition"
-        >
-          {item}
-        </a>
-      </li>
-    ))}
-  </ul> */}
-
-  {/* Mobile button */}
-  {/* <a
-    href="/login"
-    className="md:hidden px-4 py-2 rounded-lg font-semibold bg-white text-teal-600"
-  >
-    Login
-  </a>
-</nav>
-
-      </header> */}
 
       {/* ===== Hero ===== */}
-      <motion.section
+      {/* <motion.section
         id="home"
         initial="hidden"
         animate="visible"
@@ -87,7 +48,69 @@ export default function Home() {
         >
           Get Started
         </a>
-      </motion.section>
+      </motion.section> */}
+     <motion.section
+  id="home"
+  initial="hidden"
+  animate="visible"
+  variants={fadeInUp}
+  className="relative flex items-center justify-start min-h-[65vh] md:min-h-[80vh] overflow-hidden"
+>
+  {/* Background image */}
+  <div
+    className="absolute inset-0 -z-20"
+    style={{
+      backgroundImage: `url(${img3})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}
+  />
+
+  {/* Overlay: black on left → teal on right */}
+  <div
+    className="absolute inset-0 -z-10"
+    style={{
+      background: `
+        linear-gradient(
+          to right,
+          rgba(0,0,0,0.8) 0%,            /* almost black left */
+          rgba(76,166,155,0.7) 100%      /* theme.colors.primary (teal) right */
+        )
+      `,
+    }}
+  />
+
+  {/* Content */}
+  <div className="relative z-10 w-full">
+    <div className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-24 text-left">
+      <h1
+        className="text-4xl md:text-6xl font-extrabold leading-tight mb-4"
+        style={{ color: theme.colors.white }}
+      >
+        Welcome to UniLink
+      </h1>
+
+      <p
+        className="text-lg md:text-xl max-w-2xl mb-8"
+        style={{ color: "rgba(255,255,255,0.92)" }}
+      >
+        The central hub for Sri Lankan university students to share knowledge,
+        discover events, and connect with peers across campuses.
+
+        
+      </p>
+
+      <a
+        href="/login"
+        className="inline-block px-8 py-3 rounded-lg shadow-lg text-lg font-semibold transition hover:opacity-90"
+        style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
+      >
+        Get Started
+      </a>
+    </div>
+  </div>
+</motion.section>
+
 
       {/* ===== Features ===== */}
       <section id="features" className="py-10 px-6 w-full max-w-7xl mx-auto">
@@ -183,12 +206,16 @@ export default function Home() {
             className="text-4xl md:text-5xl font-extrabold leading-tight mb-6"
             style={{ color: theme.colors.textPrimary }}
           >
-            We are preparing the
-            <br /> leaders of tomorrow
+            {/* We are preparing the
+            <br /> leaders of tomorrow */}
+            Empowering the 
+            <br/>Leaders of Tomorrow
           </h2>
           <p className="text-lg leading-8 mb-8" style={{ color: theme.colors.textSecondary }}>
-            UniLink empowers Sri Lankan university students with a centralized space for learning,
-            sharing, and connecting across campuses.
+{/* UniLink empowers Sri Lankan university students with a centralized space for learning, sharing, and connecting across campuses. */}
+          UniLink empowers Sri Lankan university students with the tools and connections they
+             need to succeed. By bringing together resources, events, and communities into one platform,
+              UniLink supports the next generation of thinkers, creators, and leaders.
           </p>
           <a
             href="/login"
@@ -255,25 +282,7 @@ export default function Home() {
         </div>
       </motion.section> */}
 
-      {/* ===== CTA ===== */}
-      {/* <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={fadeInUp}
-        className="w-full py-16 text-center mt-24"
-        style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
-      >
-        <h2 className="text-3xl font-bold mb-4">Join UniLink Today!</h2>
-        <p className="mb-6">Start connecting, sharing, and learning across universities.</p>
-        <a
-          href="/login"
-          className="px-6 py-3 rounded-lg font-semibold transition hover:opacity-90"
-          style={{ backgroundColor: theme.colors.white, color: theme.colors.primary }}
-        >
-          Get Started
-        </a>
-      </motion.section> */}
+     
 
 
 {/* ===== CTA (green/teal style, matches theme) ===== */}
@@ -282,7 +291,7 @@ export default function Home() {
   whileInView="visible"
   viewport={{ once: true, amount: 0.3 }}
   variants={fadeInUp}
-  className="w-full mt-[150px]"
+  className="w-full mt-[170px]"
 >
   <div
     className=" mx-auto px-6 md:px-10 py-20 md:py-24"
@@ -292,7 +301,7 @@ export default function Home() {
       borderRadius: "0.25rem",
     }}
   >
-    <div className="grid md:grid-cols-3 gap-10 items-center ml-[150px]">
+    <div className="grid md:grid-cols-3 gap-10 items-center ml-[170px]">
       {/* Left: line + heading + text */}
       <div className="md:col-span-2">
         <div
@@ -314,7 +323,7 @@ export default function Home() {
       </div>
 
       {/* Right: CTA button */}
-      <div className="flex md:justify-end items-center mr-[150px]">
+      <div className="flex md:justify-end items-center mr-[170px]">
         <a
           href="/login"
           className="px-10 py-6 text-sm tracking-wide font-semibold uppercase rounded-md shadow-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2"
