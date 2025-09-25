@@ -1,3 +1,4 @@
+// src/pages/AcademicRepository.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -51,53 +52,96 @@ export default function AcademicRepository() {
     }
   }
 
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+  };
+
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Academic Repository</h1>
+    <div className="max-w-7xl mx-auto py-12 px-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold" style={{ color: theme.colors.textPrimary }}>
+          Academic Repository
+        </h1>
         <button
-          className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+          className="px-4 py-2 rounded-lg font-semibold transition"
+          style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
           onClick={() => setShowCreate(true)}
         >
           + Create Subject
         </button>
       </div>
 
+      {/* Cards */}
       {loading ? (
-        <div className="text-center py-8 text-gray-600">Loading...</div>
+        <div className="text-center py-10" style={{ color: theme.colors.textSecondary }}>
+          Loading...
+        </div>
       ) : subjects.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No subjects yet.</div>
+        <div className="text-center py-10" style={{ color: theme.colors.textSecondary }}>
+          No subjects yet.
+        </div>
       ) : (
-        <ul className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {subjects.map((subj) => (
-            <li
+            <motion.div
               key={subj._id}
-              className="border rounded-xl p-6 shadow-sm hover:shadow-lg transition bg-white flex justify-between items-center"
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
+              className="
+                group relative rounded-2xl
+                bg-white backdrop-blur-[1px]
+                p-6 shadow-sm ring-1 ring-black/5
+                transition-all duration-200
+                hover:shadow-md hover:-translate-y-[2px]
+              "
             >
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">{subj.subject}</h2>
-                <p className="text-gray-700">{subj.course}</p>
+              <h2 className="text-lg font-semibold truncate" style={{ color: theme.colors.textPrimary }}>
+                {subj.subject}
+              </h2>
+              <p className="mt-1 text-sm truncate" style={{ color: theme.colors.textSecondary }}>
+                {subj.course}
+              </p>
+
+              <div className="mt-6">
+                <Link
+                  to={`/notes/${encodeURIComponent(subj.subject)}`}
+                  className="
+                    inline-flex items-center justify-center
+                    rounded-xl px-4 py-2 text-sm font-medium
+                    border transition-all duration-200 hover:shadow-sm
+                  "
+                  style={{
+                    borderColor: theme.colors.primary,
+                    backgroundColor: theme.colors.white,
+                    color: theme.colors.textPrimary, // keep neutral like screenshot
+                  }}
+                >
+                  View Notes
+                </Link>
               </div>
-              <Link
-                to={`/notes/${encodeURIComponent(subj.subject)}`}
-                className="text-teal-600 font-medium hover:underline"
-              >
-                View Notes →
-              </Link>
-            </li>
+
+              {/* subtle inner outline like the mock */}
+              <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-black/5" />
+            </motion.div>
           ))}
-        </ul>
+        </div>
       )}
 
-      {/* Modal for creating subject */}
+      {/* Create Subject Modal */}
       {showCreate && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md"
           >
-            <h2 className="text-2xl font-bold mb-4">Create Subject</h2>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: theme.colors.textPrimary }}>
+              Create Subject
+            </h2>
             <form className="flex flex-col gap-4" onSubmit={createSubject}>
               <input
                 type="text"
@@ -125,7 +169,8 @@ export default function AcademicRepository() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+                  className="px-4 py-2 rounded-lg font-semibold transition"
+                  style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
                 >
                   Create
                 </button>
