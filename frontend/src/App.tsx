@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import PublicLayout from "./layouts/PublicLayout";
 import './styles/theme.ts';
+import { Link } from "react-router-dom";
+import EventDetails from "./pages/EventDetails"; // ✅ import your new page
 
 
 import Dashboard from "./pages/Dashboard";
@@ -95,6 +97,19 @@ function App() {
             </PrivateRoute>
           }
         />
+        import EventDetails from "./pages/EventDetails"; // ✅ import your new page
+
+<Route
+  path="/events/:id"
+  element={
+    <PrivateRoute>
+      <DashboardLayout>
+        <EventDetails />   {/* ✅ this will render a full page per event */}
+      </DashboardLayout>
+    </PrivateRoute>
+  }
+/>
+
         <Route
           path="/forum"
           element={
