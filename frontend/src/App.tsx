@@ -100,7 +100,7 @@ function App() {
         import EventDetails from "./pages/EventDetails"; // ✅ import your new page
 
 <Route
-  path="/events/:id"
+  path="/events/:_id"
   element={
     <PrivateRoute>
       <DashboardLayout>
