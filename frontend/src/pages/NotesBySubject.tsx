@@ -1,17 +1,17 @@
-// src/pages/NotesBySubject.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import theme from "../styles/theme";
 
-type Note = {
-  _id: string;
-  unit: string;
-  description?: string;
-  uploader?: string;
-  date?: string | null;
-  link: string;
-  createdAt?: string;
-};
+import type { Note } from "../types/note";
+import NoteCard from "../components/notes/NoteCard";
+import UploadNoteModal from "../components/notes/UploadNoteModal";
+import { SkeletonList } from "../components/notes/SkeletonList";
+import { EmptyState } from "../components/notes/EmptyState";
+
+const STRIP = "#b0e5e8" ;
+
 
 export default function NotesBySubject() {
   const { subject } = useParams<{ subject: string }>();
@@ -27,7 +27,11 @@ export default function NotesBySubject() {
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [uploader, setUploader] = useState<string>(""); // optional: uploader name
+  const [uploader, setUploader] = useState<string>("");
+
+  // UI: search/sort
+  const [q, setQ] = useState("");
+  const [sortKey, setSortKey] = useState<"newest" | "oldest" | "title">("newest");
 
   useEffect(() => {
     if (subjectName) loadNotes();
@@ -44,11 +48,10 @@ export default function NotesBySubject() {
       const data: Note[] = await res.json();
       setNotes(data || []);
 
-      // Build list of unique units WITHOUT using `[...new Set(...)]`
-      const items = data || [];
+      // unique units
       const seen: Record<string, boolean> = {};
       const unitsArr: string[] = [];
-      items.forEach((n) => {
+      (data || []).forEach((n) => {
         const u = (n.unit || "Untitled").trim();
         if (u && !seen[u]) {
           seen[u] = true;
@@ -88,7 +91,6 @@ export default function NotesBySubject() {
         const text = await res.text();
         throw new Error(`Upload failed (${res.status}): ${text}`);
       }
-      // Success — reset and refresh
       setUnit("");
       setNewUnit("");
       setDescription("");
@@ -102,8 +104,52 @@ export default function NotesBySubject() {
     }
   }
 
-  // Group notes by unit for rendering
-  const grouped: Record<string, Note[]> = notes.reduce((acc, note) => {
+  // ------- UI helpers / animations -------
+  const fadeParent = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.06 } },
+  };
+  const fadeItem = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.22 } },
+  };
+  const fmtDate = (iso?: string | null) => {
+    if (!iso) return "";
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }).format(new Date(iso));
+    } catch {
+      return "";
+    }
+  };
+
+  // search + sort
+  const filteredSorted = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const copy = [...notes].filter((n) => {
+      if (!needle) return true;
+      return (
+        (n.description || "").toLowerCase().includes(needle) ||
+        (n.unit || "").toLowerCase().includes(needle) ||
+        (n.uploader || "").toLowerCase().includes(needle)
+      );
+    });
+    copy.sort((a, b) => {
+      if (sortKey === "title") {
+        return (a.description || "").localeCompare(b.description || "");
+      }
+      const ad = new Date(a.date || a.createdAt || 0).getTime();
+      const bd = new Date(b.date || b.createdAt || 0).getTime();
+      return sortKey === "newest" ? bd - ad : ad - bd;
+    });
+    return copy;
+  }, [notes, q, sortKey]);
+
+  // group by unit after filtering
+  const grouped: Record<string, Note[]> = filteredSorted.reduce((acc, note) => {
     const key = (note.unit || "Untitled").trim();
     if (!acc[key]) acc[key] = [];
     acc[key].push(note);
@@ -120,123 +166,101 @@ export default function NotesBySubject() {
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-gray-800">{subjectName}</h1>
-        <button
-          className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
-          onClick={() => setShowUpload(true)}
+      {/* Header + Toolbar */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h1
+          className="text-3xl md:text-4xl font-extrabold tracking-tight"
+          style={{ color: theme.colors.textPrimary }}
         >
-          + Upload Note
-        </button>
+          {subjectName}
+        </h1>
+
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          {/* search */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search notes…"
+              className="w-64 pl-10 pr-3 py-2 rounded-lg bg-white shadow-sm ring-1 ring-black/5 focus:outline-none"
+            />
+          </div>
+
+          {/* sort */}
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as any)}
+            className="px-3 py-2 rounded-lg bg-white shadow-sm ring-1 ring-black/5 focus:outline-none"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="title">Title (A–Z)</option>
+          </select>
+
+          {/* upload */}
+          <button
+            className="px-4 py-2 rounded-lg font-semibold shadow-sm transition hover:opacity-95"
+            style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
+            onClick={() => setShowUpload(true)}
+          >
+            + Upload Note
+          </button>
+        </div>
       </div>
 
+      {/* Content */}
       {loading ? (
-        <div className="text-center py-8 text-gray-600">Loading notes...</div>
-      ) : notes.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">No notes available for this subject.</div>
+        <SkeletonList />
+      ) : filteredSorted.length === 0 ? (
+        <EmptyState />
       ) : (
         Object.entries(grouped).map(([unitName, unitNotes]) => (
-          <section key={unitName} className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4" style={{ color: "#154e4a" }}>
-              {unitName}
-            </h2>
-            <ul className="space-y-4">
+          <section key={unitName} className="mb-10">
+            {/* Unit chip/heading */}
+
+          <div className="bg-white/85 rounded-3xl mb-4  p-1 pl-4 pr-4 flex w-fit items-start justify-between"                      style={{ backgroundColor: theme.colors.primary }}
+          >
+              <p
+                className="text-xl font-semibold"
+                style={{ color: theme.colors.white }}
+              >
+                {unitName}
+              </p>
+            </div>
+
+            {/* Notes */}
+            <motion.ul
+              variants={fadeParent}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="space-y-3"
+            >
               {unitNotes.map((note) => (
-                <li key={note._id} className="border rounded-xl p-4 shadow-sm bg-white">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-                    <div>
-                      <div className="text-lg font-semibold text-gray-900">{note.description || "No title"}</div>
-                      <div className="text-sm text-gray-500">
-                        Uploaded by: {note.uploader || "Anonymous"} |{" "}
-                        {note.date ? new Date(note.date).toLocaleDateString() : note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ""}
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <a
-                        href={note.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-teal-600 font-medium hover:underline"
-                      >
-                        View
-                      </a>
-                      <a href={note.link} download className="text-teal-600 font-medium hover:underline">
-                        Download
-                      </a>
-                    </div>
-                  </div>
-                </li>
+                <NoteCard key={note._id} note={note} fmtDate={fmtDate} fadeItem={fadeItem} />
               ))}
-            </ul>
+            </motion.ul>
           </section>
         ))
       )}
 
       {/* Upload Modal */}
-      {showUpload && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
-          <motion.div
-            initial={{ scale: 0.96, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg"
-          >
-            <h2 className="text-2xl font-bold mb-4">Upload Note</h2>
-            <form className="flex flex-col gap-3" onSubmit={uploadNote}>
-              {/* Choose existing unit */}
-              <label className="text-sm text-gray-600">Choose existing unit (optional)</label>
-              <select value={unit} onChange={(e) => setUnit(e.target.value)} className="border p-2 rounded-lg">
-                <option value="">-- Select an existing unit --</option>
-                {availableUnits.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
-
-              {/* Or type a new unit */}
-              <label className="text-sm text-gray-600">Or enter a new unit</label>
-              <input
-                type="text"
-                placeholder="New unit name"
-                value={newUnit}
-                onChange={(e) => setNewUnit(e.target.value)}
-                className="border p-2 rounded-lg"
-              />
-
-              <input
-                type="text"
-                placeholder="Uploader name (optional)"
-                value={uploader}
-                onChange={(e) => setUploader(e.target.value)}
-                className="border p-2 rounded-lg"
-              />
-
-              <textarea
-                placeholder="Description (optional)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="border p-2 rounded-lg resize-none h-24"
-              />
-
-              <input
-                type="file"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-                className="border p-2 rounded-lg"
-                required
-              />
-
-              <div className="flex justify-end gap-2 mt-2">
-                <button type="button" onClick={() => setShowUpload(false)} className="px-4 py-2 rounded-lg border">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
-                  Upload
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <UploadNoteModal
+        open={showUpload}
+        availableUnits={availableUnits}
+        unit={unit}
+        setUnit={setUnit}
+        newUnit={newUnit}
+        setNewUnit={setNewUnit}
+        uploader={uploader}
+        setUploader={setUploader}
+        description={description}
+        setDescription={setDescription}
+        setFile={setFile}
+        onClose={() => setShowUpload(false)}
+        onSubmit={uploadNote}
+      />
     </div>
   );
 }
