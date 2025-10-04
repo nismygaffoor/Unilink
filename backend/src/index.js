@@ -36,12 +36,21 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Use routes
 app.use('/api/auth', authRoutes);      // Signup
-app.use('/api/users', userRoutes);     // Leaderboard & profiles
+// app.use('/api/users', userRoutes);     // Leaderboard & profiles
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/events', eventRoutes);   // Events CRUD
 app.use('/api/forum', forumRoutes);    // Forum CRUD
+// backend/src/index.js (or your main server file)
+const path = require("path");
 
+// Serve uploaded files so frontend can access them
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/api/users", (req, res, next) => {
+  console.log("users route hit:", req.method, req.url);
+  next();
+}, userRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
