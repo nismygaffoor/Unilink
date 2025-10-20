@@ -42,10 +42,7 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/events', eventRoutes);   // Events CRUD
 app.use('/api/forum', forumRoutes);    // Forum CRUD
 // backend/src/index.js (or your main server file)
-const path = require("path");
-
-// Serve uploaded files so frontend can access them
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', express.static('uploads'));
 
 app.use("/api/users", (req, res, next) => {
   console.log("users route hit:", req.method, req.url);
