@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const requireAuth = require('../middleware/requireAuth');
 const { getNotesBySubject, createNote } = require('../controllers/noteController');
 
 const storage = multer.diskStorage({
@@ -10,7 +11,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Public route: view notes
 router.get('/subject/:subject', getNotesBySubject);
-router.post('/', upload.single('file'), createNote);
+
+// Protected route: upload notes
+router.post('/', requireAuth, upload.single('file'), createNote);
 
 module.exports = router;
