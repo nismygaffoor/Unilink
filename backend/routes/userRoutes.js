@@ -1,11 +1,17 @@
-const express = require('express');
+const express = require("express");
+const requireAuth = require("../middleware/requireAuth");
+const {
+  getMe,
+  updateMe,
+  getByUid,
+  getLeaderboard,
+} = require("../controllers/userController");
+
 const router = express.Router();
-const { getLeaderboard, getProfile } = require('../controllers/userController');
 
-// Leaderboard
-router.get('/leaderboard', getLeaderboard);
-
-// Get user profile by email
-router.get('/:email', getProfile);
+router.get("/leaderboard", getLeaderboard);
+router.get("/me", requireAuth, getMe);
+router.patch("/me", requireAuth, updateMe);
+router.get("/:uid", getByUid); // optional
 
 module.exports = router;
