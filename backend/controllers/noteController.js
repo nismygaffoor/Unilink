@@ -1,34 +1,31 @@
 const Note = require('../models/Note');
+const User = require('../models/User');
 
-// Get notes by subject
 exports.getNotesBySubject = async (req, res) => {
   try {
-    const subject = req.params.subject;
-    const notes = await Note.find({ subject });
+    const notes = await Note.find({ subject: req.params.subject }).lean();
     res.json(notes);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Create/upload a note
 exports.createNote = async (req, res) => {
   try {
-    const { subject, unit, description, uploader } = req.body;
+    const { uid, email, name } = req.user; // from requireAuth middleware
 
-    if (!req.file) return res.status(400).json({ error: "File is required" });
-
-    const filePath = `/uploads/${req.file.filename}`; // adjust path
-
-    const note = new Note({
-      subject,
-      unit,
-      description,
-      uploader,
-      link: filePath
+    const note = await Note.create({
+      subject: req.body.subject,
+      unit: req.body.unit,
+      description: req.body.description,
+      filePath: req.file?.path,
+      userId: uid,
+      author: name || email || "Anonymous", // take from logged-in user
     });
 
-    await note.save();
+    // increment user’s note counter
+    await User.findByIdAndUpdate(uid, { $inc: { notes: 1 } });
+
     res.status(201).json(note);
   } catch (err) {
     res.status(500).json({ error: err.message });
