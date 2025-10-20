@@ -4,6 +4,9 @@ import PublicLayout from "./layouts/PublicLayout";
 import './styles/theme.ts';
 import { Link } from "react-router-dom";
 import EventDetails from "./pages/EventDetails"; // ✅ import your new page
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPrivateRoute from "./components/AdminPrivateRoute";
 
 
 import Dashboard from "./pages/Dashboard";
@@ -26,7 +29,7 @@ import PrivateRoute from "./components/PrivateRoute";
 function App() {
   return (
     <>
-      <Routes>
+  <Routes>
         {/* Public routes */}
         <Route
   path="*"
@@ -60,7 +63,9 @@ function App() {
           </PublicLayout>
         }
       />
-      <Route path="/login" element={<SignIn />} />
+  <Route path="/login" element={<SignIn />} />
+  <Route path="/admin/login" element={<AdminLogin />} />
+  <Route path="/admin/dashboard" element={<AdminPrivateRoute><AdminDashboard /></AdminPrivateRoute>} />
 
 
         {/* Protected dashboard routes */}
