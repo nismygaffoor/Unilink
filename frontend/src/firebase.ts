@@ -23,3 +23,6 @@ export const auth = getAuth(app);
 // export const storage = getStorage(app);
 
 export default app;
+
+//This file connects your frontend React app to Firebase.
+
