@@ -3,15 +3,14 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import theme from "../styles/theme";
+import { auth } from "../firebase";
+import { NoteService } from "../services/note";
 
 import type { Note } from "../types/note";
 import NoteCard from "../components/notes/NoteCard";
 import UploadNoteModal from "../components/notes/UploadNoteModal";
 import { SkeletonList } from "../components/notes/SkeletonList";
 import { EmptyState } from "../components/notes/EmptyState";
-
-const STRIP = "#b0e5e8" ;
-
 
 export default function NotesBySubject() {
   const { subject } = useParams<{ subject: string }>();
@@ -27,7 +26,6 @@ export default function NotesBySubject() {
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [uploader, setUploader] = useState<string>("");
 
   // UI: search/sort
   const [q, setQ] = useState("");
@@ -35,20 +33,15 @@ export default function NotesBySubject() {
 
   useEffect(() => {
     if (subjectName) loadNotes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectName]);
 
   async function loadNotes() {
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/notes/subject/${encodeURIComponent(subjectName)}`
-      );
-      if (!res.ok) throw new Error(`Server responded ${res.status}`);
-      const data: Note[] = await res.json();
+      const data: Note[] = await NoteService.getNotesBySubject(subjectName);
       setNotes(data || []);
 
-      // unique units
+      // collect unique units
       const seen: Record<string, boolean> = {};
       const unitsArr: string[] = [];
       (data || []).forEach((n) => {
@@ -68,34 +61,34 @@ export default function NotesBySubject() {
     }
   }
 
-  // Upload handler (FormData -> backend multer)
+  // Upload handler
   async function uploadNote(e: React.FormEvent) {
     e.preventDefault();
     const chosenUnit = (newUnit || unit).trim();
     if (!chosenUnit) return alert("Please select or enter a unit name.");
     if (!file) return alert("Please select a file to upload.");
 
+    // 👇 get logged-in user
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert("You must be logged in to upload notes.");
+      return;
+    }
+
+    const displayName = currentUser.displayName || currentUser.email || "Anonymous";
+
     const formData = new FormData();
     formData.append("subject", subjectName);
     formData.append("unit", chosenUnit);
     formData.append("description", description);
-    formData.append("uploader", uploader || "Anonymous");
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:5000/api/notes", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Upload failed (${res.status}): ${text}`);
-      }
+      await NoteService.createNote(formData);
       setUnit("");
       setNewUnit("");
       setDescription("");
       setFile(null);
-      setUploader("");
       setShowUpload(false);
       await loadNotes();
     } catch (err) {
@@ -103,28 +96,6 @@ export default function NotesBySubject() {
       alert("Upload failed. Check console for details.");
     }
   }
-
-  // ------- UI helpers / animations -------
-  const fadeParent = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.06 } },
-  };
-  const fadeItem = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.22 } },
-  };
-  const fmtDate = (iso?: string | null) => {
-    if (!iso) return "";
-    try {
-      return new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }).format(new Date(iso));
-    } catch {
-      return "";
-    }
-  };
 
   // search + sort
   const filteredSorted = useMemo(() => {
@@ -134,21 +105,21 @@ export default function NotesBySubject() {
       return (
         (n.description || "").toLowerCase().includes(needle) ||
         (n.unit || "").toLowerCase().includes(needle) ||
-        (n.uploader || "").toLowerCase().includes(needle)
+        (n.author || "").toLowerCase().includes(needle)
       );
     });
     copy.sort((a, b) => {
       if (sortKey === "title") {
         return (a.description || "").localeCompare(b.description || "");
       }
-      const ad = new Date(a.date || a.createdAt || 0).getTime();
-      const bd = new Date(b.date || b.createdAt || 0).getTime();
+      const ad = new Date(a.createdAt || 0).getTime();
+      const bd = new Date(b.createdAt || 0).getTime();
       return sortKey === "newest" ? bd - ad : ad - bd;
     });
     return copy;
   }, [notes, q, sortKey]);
 
-  // group by unit after filtering
+  // group by unit
   const grouped: Record<string, Note[]> = filteredSorted.reduce((acc, note) => {
     const key = (note.unit || "Untitled").trim();
     if (!acc[key]) acc[key] = [];
@@ -157,21 +128,14 @@ export default function NotesBySubject() {
   }, {} as Record<string, Note[]>);
 
   if (!subjectName) {
-    return (
-      <div className="max-w-4xl mx-auto py-12 px-4 text-center text-gray-600">
-        Invalid subject.
-      </div>
-    );
+    return <div className="p-6 text-red-600">Invalid subject.</div>;
   }
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       {/* Header + Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1
-          className="text-3xl md:text-4xl font-extrabold tracking-tight"
-          style={{ color: theme.colors.textPrimary }}
-        >
+        <h1 className="text-3xl md:text-4xl font-extrabold" style={{ color: theme.colors.textPrimary }}>
           {subjectName}
         </h1>
 
@@ -217,28 +181,19 @@ export default function NotesBySubject() {
       ) : (
         Object.entries(grouped).map(([unitName, unitNotes]) => (
           <section key={unitName} className="mb-10">
-            {/* Unit chip/heading */}
-
-          <div className="bg-white/85 rounded-3xl mb-4  p-1 pl-4 pr-4 flex w-fit items-start justify-between"                      style={{ backgroundColor: theme.colors.primary }}
-          >
-              <p
-                className="text-xl font-semibold"
-                style={{ color: theme.colors.white }}
-              >
+            <div className="rounded-3xl mb-4 p-2 px-4" style={{ backgroundColor: theme.colors.primary }}>
+              <p className="text-xl font-semibold" style={{ color: theme.colors.white }}>
                 {unitName}
               </p>
             </div>
-
-            {/* Notes */}
             <motion.ul
-              variants={fadeParent}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               className="space-y-3"
             >
               {unitNotes.map((note) => (
-                <NoteCard key={note._id} note={note} fmtDate={fmtDate} fadeItem={fadeItem} />
+                <NoteCard key={note._id} note={note} fmtDate={(iso) => new Date(iso || "").toLocaleDateString()} fadeItem={{}} />
               ))}
             </motion.ul>
           </section>
@@ -253,8 +208,6 @@ export default function NotesBySubject() {
         setUnit={setUnit}
         newUnit={newUnit}
         setNewUnit={setNewUnit}
-        uploader={uploader}
-        setUploader={setUploader}
         description={description}
         setDescription={setDescription}
         setFile={setFile}
