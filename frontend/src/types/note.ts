@@ -1,10 +1,12 @@
-// src/types/note.ts
 export type Note = {
   _id: string;
+  subject: string;
   unit: string;
   description?: string;
-  uploader?: string;
-  date?: string | null;
-  link: string;
+  userId: string;
+  author: string;           // ✅ replace old uploader
+  filePath: string;         // ✅ replace old link
   createdAt?: string;
+  updatedAt?: string;
+   date?: string; 
 };
